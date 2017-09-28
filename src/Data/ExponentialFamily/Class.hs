@@ -12,6 +12,8 @@ class ProbDensity d where
     -- Point d is usually Double, but sometimes it may be some other
     -- structures.
     f :: d -> Point d -> Probability
+    logF :: d -> Point d -> Double
+    logF p x = log $ f p x
 
 -- | Specialised, handy version of @expectVal@.
 expectValD :: (Double -> Probability)         -- ^ probability density function
@@ -37,3 +39,15 @@ expectVal dist func config =
         p = f dist
         xs = integrateValues config
         dx = integrateWidth config
+
+
+kullbackLeiblerDivergence :: ( ProbDensity d0
+                             , ProbDensity d1
+                             , IntegrateConfig iconf
+                             , Point d0 ~ Point d1
+                             , Point d0 ~ Domain iconf )
+                            => d0 -> d1
+                            -> iconf -> Double
+
+kullbackLeiblerDivergence d0 d1 =
+    expectVal d0 (\x -> logF d0 x / logF d1 x)
