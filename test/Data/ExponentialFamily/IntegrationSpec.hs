@@ -22,8 +22,15 @@ spec = do
                 y = max x' y'
                 calced = integrate (^2) (IntegrateDouble x y ((y-x) / 50000))
                 analy = let f a = a^3 / 3 in f y - f x
-                in
-                return $ calced `closeEnough` analy
+            return $ calced `closeEnough` analy
+        it "int (1/x)= log" $ property $ do
+            x' <- choose (10,10000)
+            y' <- choose (10,10000)
+            let x = min x' y'
+                y = max x' y'
+                calced = integrate (1/) (IntegrateDouble x y ((y-x) / 50000))
+                analy = log y - log x
+            return $ calced `closeEnough` analy
 
 th :: Double
 th = 0.0001
