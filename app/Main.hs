@@ -1,6 +1,6 @@
 module Main where
 
-import Lib
+import Naiive
 import Data.Ratio
 
 main :: IO ()

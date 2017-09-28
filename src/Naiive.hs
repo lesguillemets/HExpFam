@@ -1,5 +1,5 @@
 {-# LANGUAGE RecordWildCards #-}
-module Lib  where
+module Naiive  where
 import Data.Ratio
 
 someFunc :: IO ()
