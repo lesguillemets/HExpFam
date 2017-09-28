@@ -1,8 +1,8 @@
-name:                playards
+name:                HExpFams
 version:             0.1.0.0
 -- synopsis:
 -- description:
-homepage:            https://github.com/lesguillemets/playards#readme
+homepage:            https://github.com/lesguillemets/HExpFams#readme
 license:             BSD3
 license-file:        LICENSE
 author:              lesguillemets
@@ -16,23 +16,25 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     Naiive
+                     , Data.ExponentialFamily
+                     , Data.ExponentialFamily.Class
   build-depends:       base >= 4.7 && < 5
   default-language:    Haskell2010
 
-executable playards-exe
+executable HExpFams-exe
   hs-source-dirs:      app
   main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
-                     , playards
+                     , HExpFams
   default-language:    Haskell2010
 
-test-suite playards-test
+test-suite HExpFams-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
   build-depends:       base
-                     , playards
+                     , HExpFams
                      , hspec
                      , QuickCheck
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
@@ -40,4 +42,4 @@ test-suite playards-test
 
 source-repository head
   type:     git
-  location: https://github.com/lesguillemets/playards
+  location: https://github.com/lesguillemets/HExpFams
