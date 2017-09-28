@@ -19,6 +19,7 @@ library
                      , Data.ExponentialFamily
                      , Data.ExponentialFamily.Class
                      , Data.ExponentialFamily.Distribution
+                     , Data.ExponentialFamily.Integration
   build-depends:       base >= 4.7 && < 5
                      , math-functions
   default-language:    Haskell2010
