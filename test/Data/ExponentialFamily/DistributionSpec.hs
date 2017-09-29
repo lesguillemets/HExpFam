@@ -19,6 +19,11 @@ spec = do
             μ <- choose (-10, 10)
             σ2 <- choose (0, 100)
             return . (<0.001)  . abs $ 1 - expectVal (IntegrateDouble (-100) 100 0.01) (Normal μ σ2) (const 1)
+        it "logF is nicely defined" $ property $ do
+            n <- Normal <$> choose (-100, 100) <*>  choose (0, 10000)
+            x <- choose (-200,200)
+            return . (<0.001)  . abs $ logF n x - (log $ f n x)
+            
         it "fromθ . toθ is id" $ property $ do
             par <- Normal <$> choose (-10, 10) <*> choose (0, 100)
             return $ (fromθ . toθ $ par) `closeEnough` par

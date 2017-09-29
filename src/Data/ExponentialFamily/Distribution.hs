@@ -13,6 +13,7 @@ data Normal = Normal { _μ :: Double
 instance ProbDensity Normal where
     type Point Normal = Double
     f (Normal μ σ2) x = exp ( -(x-μ)^2 / (2*σ2) ) / sqrt (2*pi*σ2)
+    logF (Normal μ σ2) x = -(x-μ)^2 / (2*σ2) - log(2*pi*σ2)/2
 
 
 type instance TEParam Normal = (Double, Double)
