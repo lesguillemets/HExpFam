@@ -1,18 +1,19 @@
 {-# LANGUAGE TypeFamilies #-}
 module Data.ExponentialFamily.ThetaEta where
 
+
+type family TEParam dist :: *
+
 class ThetaEta a where
-    data Param a
-    fromParam :: Param a -> a
-    toParam :: a -> Param a
-    toθ :: Param a -> Theta
-    fromθ :: Theta -> Param a
-    toη :: Param a -> Eta
-    fromη :: Eta -> Param a
-    modifyθ :: (Theta -> Theta) -> Param a -> Param a
+    toθ :: a -> Theta a
+    fromθ :: Theta a -> a
+    toη :: a -> Eta a
+    fromη :: Eta a -> a
+    modifyθ :: (Theta a -> Theta a) -> a -> a
     modifyθ f = fromθ . f . toθ
-    modifyη :: (Eta -> Eta) -> Param a -> Param a
+    modifyη :: (Eta a -> Eta a) -> a -> a
     modifyη f = fromη . f . toη
 
-type Eta = [Double]
-type Theta = [Double]
+
+newtype Theta a = Theta (TEParam a)
+newtype Eta a = Eta (TEParam a)
