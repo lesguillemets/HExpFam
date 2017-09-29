@@ -1,4 +1,5 @@
 {-# LANGUAGE TypeFamilies #-}
+
 module Data.ExponentialFamily.Class where
 
 import Data.ExponentialFamily.Integration
@@ -16,38 +17,38 @@ class ProbDensity d where
     logF p x = log $ f p x
 
 -- | Specialised, handy version of @expectVal@.
-expectValD :: (Double -> Probability)         -- ^ probability density function
-           -> (Double -> Double)              -- ^ Gives the value at that
-           -> Double                          -- ^ Lower
-           -> Double                          -- ^ Upper
-           -> Double                          -- ^ dx
-           -> Double
+expectValD ::
+       (Double -> Probability) -- ^ probability density function
+    -> (Double -> Double) -- ^ Gives the value at that
+    -> Double -- ^ Lower
+    -> Double -- ^ Upper
+    -> Double -- ^ dx
+    -> Double
 expectValD p f lower upper dx =
-    sum $ map ((*dx) . (\x -> f x * p x)) [lower, lower+dx..upper]
+    sum $ map ((* dx) . (\x -> f x * p x)) [lower,lower + dx .. upper]
 
-
-expectVal :: (ProbDensity d, IntegrateConfig iconf, Point d ~ Domain iconf)
-          => d                       -- ^ probability density function
-          -> (Point d -> Double)     -- ^ Gives the value at that point
-          -> iconf                   -- ^ the points and width of the integration
-          -> Double                  -- ^ expectation
-
+expectVal ::
+       (ProbDensity d, IntegrateConfig iconf, Point d ~ Domain iconf)
+    => d -- ^ probability density function
+    -> (Point d -> Double) -- ^ Gives the value at that point
+    -> iconf -- ^ the points and width of the integration
+    -> Double -- ^ expectation
 -- | Calculates the expected value of a function under a distribution.
-expectVal dist func config =
-    sum $ map ((*dx)  . (\x -> func x * p x)) xs
-    where
-        p = f dist
-        xs = integrateValues config
-        dx = integrateWidth config
+expectVal dist func config = sum $ map ((* dx) . (\x -> func x * p x)) xs
+  where
+    p = f dist
+    xs = integrateValues config
+    dx = integrateWidth config
 
-
-kullbackLeiblerDivergence :: ( ProbDensity d0
-                             , ProbDensity d1
-                             , IntegrateConfig iconf
-                             , Point d0 ~ Point d1
-                             , Point d0 ~ Domain iconf )
-                            => d0 -> d1
-                            -> iconf -> Double
-
-kullbackLeiblerDivergence d0 d1 =
-    expectVal d0 (\x -> logF d0 x / logF d1 x)
+kullbackLeiblerDivergence ::
+       ( ProbDensity d0
+       , ProbDensity d1
+       , IntegrateConfig iconf
+       , Point d0 ~ Point d1
+       , Point d0 ~ Domain iconf
+       )
+    => d0
+    -> d1
+    -> iconf
+    -> Double
+kullbackLeiblerDivergence d0 d1 = expectVal d0 (\x -> logF d0 x / logF d1 x)

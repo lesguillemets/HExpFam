@@ -17,11 +17,12 @@ class IntegrateConfig i where
 
 -- | Integrate a function.
 -- non-Double valued functions are currently not supported.
-integrate :: IntegrateConfig i
-          => (Domain i -> Double)  -- ^ function to integrate.
-          -> i                     -- ^ How?
-          -> Double
-integrate f i =  sum . map ((* integrateWidth i) . f) $ integrateValues i
+integrate ::
+       IntegrateConfig i
+    => (Domain i -> Double) -- ^ function to integrate.
+    -> i -- ^ How?
+    -> Double
+integrate f i = sum . map ((* integrateWidth i) . f) $ integrateValues i
 
 --
 -- | Integrate from @_lower@ to @_upper@, using boxes whose width is @_dx@.
