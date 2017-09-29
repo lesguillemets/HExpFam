@@ -7,7 +7,7 @@ import Test.QuickCheck.Arbitrary
 
 import Data.ExponentialFamily.Integration
 import Data.ExponentialFamily.Distribution
-import Data.ExponentialFamily.Class
+import Data.ExponentialFamily.Density
 
 spec :: Spec
 spec = do

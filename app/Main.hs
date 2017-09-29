@@ -1,7 +1,7 @@
 module Main where
 
 import Naiive
-import Data.ExponentialFamily.Class
+import Data.ExponentialFamily.Density
 import Data.ExponentialFamily.Distribution
 import Data.Ratio
 

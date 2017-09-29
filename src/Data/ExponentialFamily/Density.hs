@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeFamilies #-}
 
-module Data.ExponentialFamily.Class where
+module Data.ExponentialFamily.Density where
 
 import Data.ExponentialFamily.Integration
 

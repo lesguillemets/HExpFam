@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeFamilies #-}
 module Data.ExponentialFamily.Distribution where
 
-import Data.ExponentialFamily.Class
+import Data.ExponentialFamily.Density
 
 import Numeric.SpecFunctions (choose)
 
