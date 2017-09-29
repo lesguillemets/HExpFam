@@ -12,7 +12,7 @@ spec = do
         it "int cos = sin" $ property $ \ (ZeroOne x') (ZeroOne y') ->
             let x = 10*pi * (subtract 0.5 $ min x' y')
                 y = 10*pi * (subtract 0.5 $ max x' y')
-                calced = integrate cos (IntegrateDouble x y ((y-x) / 50000))
+                calced = integrate (mkconf x y) cos
                 analy = sin y - sin x
                 in calced `closeEnough` analy
         it "int x^2 = x^3/3" $ property $ do
@@ -20,7 +20,7 @@ spec = do
             y' <- choose (-10,10)
             let x = min x' y'
                 y = max x' y'
-                calced = integrate (^2) (IntegrateDouble x y ((y-x) / 50000))
+                calced = integrate (mkconf x y) (^2)
                 analy = let f a = a^3 / 3 in f y - f x
             return $ calced `closeEnough` analy
         it "int (1/x)= log" $ property $ do
@@ -28,7 +28,7 @@ spec = do
             y' <- choose (10,10000)
             let x = min x' y'
                 y = max x' y'
-                calced = integrate (1/) (IntegrateDouble x y ((y-x) / 50000))
+                calced = integrate (mkconf x y ) (1/)
                 analy = log y - log x
             return $ calced `closeEnough` analy
 
@@ -39,6 +39,9 @@ shouldBeCloseEnough x y = abs (x-y) `shouldSatisfy` (< th)
 
 closeEnough :: Double -> Double -> Bool
 closeEnough x y = abs (x-y) < th
+
+mkconf :: Double -> Double -> IntegrateDouble
+mkconf x y = IntegrateDouble x y ((y-x) / 50000)
 
 newtype ZeroOne = ZeroOne Double deriving (Show)
 instance Arbitrary ZeroOne where

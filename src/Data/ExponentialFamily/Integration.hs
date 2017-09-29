@@ -19,15 +19,15 @@ class IntegrateConfig i where
 -- non-Double valued functions are currently not supported.
 integrate ::
        IntegrateConfig i
-    => (Domain i -> Double) -- ^ function to integrate.
-    -> i -- ^ How?
+    => i -- ^ How?
+    -> (Domain i -> Double) -- ^ function to integrate.
     -> Double
-integrate f i = sum . map ((* integrateWidth i) . f) $ integrateValues i
+integrate i f = sum . map ((* integrateWidth i) . f) $ integrateValues i
 
 --
 -- | Integrate from @_lower@ to @_upper@, using boxes whose width is @_dx@.
 --
--- >>> take 5 . show $ integrate sin $ IntegrateDouble 0 (pi/2) 0.001
+-- >>> take 5 . show $ integrate (IntegrateDouble 0 (pi/2) 0.001) $ sin
 -- "1.000"
 data IntegrateDouble = IntegrateDouble { _lower :: Double
                                        , _upper :: Double
@@ -41,7 +41,7 @@ instance IntegrateConfig IntegrateDouble where
 -- | For Discrete distributions, use all the values with equal weight, 1.
 --
 -- >>> data Foo = Foo | Bar | Baz | Foz deriving (Enum, Bounded)
--- >>> integrate (fromIntegral . fromEnum) (IntegrateDiscrete :: IntegrateDiscrete Foo)
+-- >>> integrate (IntegrateDiscrete :: IntegrateDiscrete Foo) (fromIntegral . fromEnum)
 -- 6.0
 data IntegrateDiscrete a = IntegrateDiscrete
 instance (Enum a, Bounded a) => IntegrateConfig (IntegrateDiscrete a) where
@@ -51,10 +51,9 @@ instance (Enum a, Bounded a) => IntegrateConfig (IntegrateDiscrete a) where
 
 -- | Use all the values given with equal weight of 1.
 --
--- >>> integrate (fromIntegral . succ) [0..9]
+-- >>> integrate  [0..9] (fromIntegral . succ)
 -- 55.0
 instance IntegrateConfig [a] where
     type Domain [a] = a
     integrateValues = id
     integrateWidth = const 1
-

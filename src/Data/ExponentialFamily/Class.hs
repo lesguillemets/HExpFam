@@ -29,12 +29,12 @@ expectValD p f lower upper dx =
 
 expectVal ::
        (ProbDensity d, IntegrateConfig iconf, Point d ~ Domain iconf)
-    => d -- ^ probability density function
+    => iconf -- ^ the points and width of the integration
+    -> d -- ^ probability density function
     -> (Point d -> Double) -- ^ Gives the value at that point
-    -> iconf -- ^ the points and width of the integration
     -> Double -- ^ expectation
 -- | Calculates the expected value of a function under a distribution.
-expectVal dist func config = sum $ map ((* dx) . (\x -> func x * p x)) xs
+expectVal config dist func = sum $ map ((* dx) . (\x -> func x * p x)) xs
   where
     p = f dist
     xs = integrateValues config
@@ -47,8 +47,9 @@ kullbackLeiblerDivergence ::
        , Point d0 ~ Point d1
        , Point d0 ~ Domain iconf
        )
-    => d0
+    => iconf
+    -> d0
     -> d1
-    -> iconf
     -> Double
-kullbackLeiblerDivergence d0 d1 = expectVal d0 (\x -> logF d0 x / logF d1 x)
+kullbackLeiblerDivergence c d0 d1 =
+    expectVal c d0 (\x -> logF d0 x / logF d1 x)
