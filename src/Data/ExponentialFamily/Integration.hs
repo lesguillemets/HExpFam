@@ -1,3 +1,7 @@
+{-|
+Generic interface for integration.
+-}
+
 {-# LANGUAGE TypeFamilies #-}
 module Data.ExponentialFamily.Integration where
 

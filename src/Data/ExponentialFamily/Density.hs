@@ -1,3 +1,6 @@
+{-|
+Probability Density and related functions.
+-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Data.ExponentialFamily.Density where
@@ -13,6 +16,7 @@ class ProbDensity d where
     -- Point d is usually Double, but sometimes it may be some other
     -- structures.
     f :: d -> Point d -> Probability
+    -- | log (f(x|θ). Handy, nothing more.
     logF :: d -> Point d -> Double
     logF p x = log $ f p x
 
@@ -27,13 +31,13 @@ expectValD ::
 expectValD p f lower upper dx =
     sum $ map ((* dx) . (\x -> f x * p x)) [lower,lower + dx .. upper]
 
+-- | Calculates the expected value of a function under a distribution.
 expectVal ::
        (ProbDensity d, IntegrateConfig iconf, Point d ~ Domain iconf)
     => iconf -- ^ the points and width of the integration
     -> d -- ^ probability density function
     -> (Point d -> Double) -- ^ Gives the value at that point
     -> Double -- ^ expectation
--- | Calculates the expected value of a function under a distribution.
 expectVal config dist func = sum $ map ((* dx) . (\x -> func x * p x)) xs
   where
     p = f dist
