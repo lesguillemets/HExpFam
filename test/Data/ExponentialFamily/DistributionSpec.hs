@@ -27,23 +27,23 @@ spec = do
             return $ (fromη . toη $ par) `closeEnough` par
         it "modifyθ +k . -k is id" $ property $ do
             par <- Normal <$> choose (-10, 10) <*> choose (0, 100)
-            let k = 2
+            k <- arbitrary
             return $ (modifyθ (first $ subtract k) . modifyθ (first (+k))) par `closeEnough` par
                     &&
                     (modifyθ (second $ subtract k) . modifyθ (second (+k))) par `closeEnough` par
         it "modifyη +k . -k is id" $ property $ do
             par <- Normal <$> choose (-10, 10) <*> choose (0, 100)
-            let k = 2
+            k <- arbitrary
             return $  (modifyη (first $ subtract k) . modifyη (first (+k))) par `closeEnough` par
                     &&
                     (modifyη (second $ subtract k) . modifyη (second (+k))) par `closeEnough` par
         it "looks ok" $ property $ do
-            x0 <- Normal <$> choose (-10, 10) <*> choose (0, 100)
+            x0 <- Normal <$> choose (-10, 10) <*> choose (0.1, 100)
             let x1 = modifyθ (first (+1)) x0
                 x2 = modifyη (second (+1)) x1
                 kld1 = kld x0 x2
                 kld2 = kld x0 x1 + kld x1 x2
-            return $ abs (kld1 - kld2) < 0.1 || error (show (kld1, kld2, abs (kld1-kld2)))
+            return $ abs (kld1 - kld2) < 0.1 || error (show (x0, x1, x2, kld1, kld2, abs (kld1-kld2)))
 
     describe "binominal distribution" $ do
         it "sums up to 1" $ property $ do
