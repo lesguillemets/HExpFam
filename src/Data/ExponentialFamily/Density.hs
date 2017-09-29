@@ -44,6 +44,8 @@ expectVal config dist func = sum $ map ((* dx) . (\x -> func x * p x)) xs
     xs = integrateValues config
     dx = integrateWidth config
 
+-- | Kullback-Leibler divergence.
+-- FIXME : when IntegrateConfig range is too large, it can result in NaN.
 kullbackLeiblerDivergence ::
        ( ProbDensity d0
        , ProbDensity d1
