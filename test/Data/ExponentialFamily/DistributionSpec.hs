@@ -5,6 +5,8 @@ import Test.QuickCheck
 import Test.QuickCheck.Property
 import Test.QuickCheck.Arbitrary
 
+import Control.Arrow
+
 import Data.ExponentialFamily.Integration
 import Data.ExponentialFamily.Distribution
 import Data.ExponentialFamily.Density
@@ -18,11 +20,30 @@ spec = do
             σ2 <- choose (0, 100)
             return . (<0.001)  . abs $ 1 - expectVal (IntegrateDouble (-100) 100 0.01) (Normal μ σ2) (const 1)
         it "fromθ . toθ is id" $ property $ do
-            par <- Normal <$> choose (-10, 10) <*> choose (-10, 10)
+            par <- Normal <$> choose (-10, 10) <*> choose (0, 100)
             return $ (fromθ . toθ $ par) `closeEnough` par
         it "fromη . toη is id" $ property $ do
-            par <- Normal <$> choose (-10, 10) <*> choose (-10, 10)
+            par <- Normal <$> choose (-10, 10) <*> choose (0, 100)
             return $ (fromη . toη $ par) `closeEnough` par
+        it "modifyθ +k . -k is id" $ property $ do
+            par <- Normal <$> choose (-10, 10) <*> choose (0, 100)
+            let k = 2
+            return $ (modifyθ (first $ subtract k) . modifyθ (first (+k))) par `closeEnough` par
+                    &&
+                    (modifyθ (second $ subtract k) . modifyθ (second (+k))) par `closeEnough` par
+        it "modifyη +k . -k is id" $ property $ do
+            par <- Normal <$> choose (-10, 10) <*> choose (0, 100)
+            let k = 2
+            return $  (modifyη (first $ subtract k) . modifyη (first (+k))) par `closeEnough` par
+                    &&
+                    (modifyη (second $ subtract k) . modifyη (second (+k))) par `closeEnough` par
+        it "looks ok" $ property $ do
+            x0 <- Normal <$> choose (-10, 10) <*> choose (0, 100)
+            let x1 = modifyθ (first (+1)) x0
+                x2 = modifyη (second (+1)) x1
+                kld1 = kld x0 x2
+                kld2 = kld x0 x1 + kld x1 x2
+            return $ abs (kld1 - kld2) < 0.1 || error (show (kld1, kld2, abs (kld1-kld2)))
 
     describe "binominal distribution" $ do
         it "sums up to 1" $ property $ do
@@ -33,3 +54,5 @@ spec = do
 closeEnough :: Normal -> Normal -> Bool
 closeEnough (Normal a b) (Normal c d) =
     abs (a - c) < 0.0001 && abs (b - d) < 0.0001
+
+kld = kullbackLeiblerDivergence (IntegrateDouble (-100) 100 0.01)
