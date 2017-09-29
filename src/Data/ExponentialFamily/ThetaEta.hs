@@ -9,10 +9,10 @@ class ThetaEta a where
     fromθ :: Theta a -> a
     toη :: a -> Eta a
     fromη :: Eta a -> a
-    modifyθ :: (Theta a -> Theta a) -> a -> a
-    modifyθ f = fromθ . f . toθ
-    modifyη :: (Eta a -> Eta a) -> a -> a
-    modifyη f = fromη . f . toη
+    modifyθ :: (TEParam a -> TEParam a) -> a -> a
+    modifyθ f = fromθ . θmap f . toθ
+    modifyη :: (TEParam a -> TEParam a) -> a -> a
+    modifyη f = fromη . ηmap f . toη
 
 
 newtype Theta a = Theta (TEParam a)
