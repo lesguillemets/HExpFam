@@ -16,4 +16,8 @@ class ThetaEta a where
 
 
 newtype Theta a = Theta (TEParam a)
+θmap :: (TEParam a -> TEParam b) -> Theta a -> Theta b
+θmap f (Theta a) = Theta (f a)
 newtype Eta a = Eta (TEParam a)
+ηmap :: (TEParam a -> TEParam b) -> Eta a -> Eta b
+ηmap f (Eta a) = Eta (f a)
