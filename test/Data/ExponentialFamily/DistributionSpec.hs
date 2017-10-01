@@ -2,7 +2,7 @@ module Data.ExponentialFamily.DistributionSpec (spec) where
 
 import Test.Hspec
 import Test.QuickCheck
-import Test.QuickCheck.Property
+import Test.QuickCheck.Property as QP
 import Test.QuickCheck.Arbitrary
 
 import Control.Arrow
@@ -20,7 +20,7 @@ spec = do
             σ2 <- choose (0, 100)
             return . (<0.001)  . abs $ 1 - expectVal (IntegrateDouble (-100) 100 0.01) (Normal μ σ2) (const 1)
         it "logF is nicely defined" $ property $ do
-            n <- Normal <$> choose (-100, 100) <*>  choose (0, 10000)
+            n <- Normal <$> choose (-100, 100) <*>  choose (0.01, 10000)
             x <- choose (-200,200)
             return . (<0.001)  . abs $ logF n x - (log $ f n x)
             
@@ -44,11 +44,16 @@ spec = do
                     (modifyη (second $ subtract k) . modifyη (second (+k))) par `closeEnough` par
         it "looks ok" $ property $ do
             x0 <- Normal <$> choose (-10, 10) <*> choose (0.1, 100)
-            let x1 = modifyθ (first (+1)) x0
-                x2 = modifyη (second (+1)) x1
+            let x1 = modifyθ (first (+0.1)) x0
+                x2 = modifyη (second (+0.1)) x1
                 kld1 = kld x0 x2
                 kld2 = kld x0 x1 + kld x1 x2
-            return $ abs (kld1 - kld2) < 0.1 || error (show (x0, x1, x2, kld1, kld2, abs (kld1-kld2)))
+            return $ if abs (kld1 - kld2) < 0.1
+                        then succeeded
+                        else failed {
+                            QP.reason =
+                                (show (x0, x1, x2, kld1, kld2, abs (kld1-kld2)))
+                        }
 
     describe "binominal distribution" $ do
         it "sums up to 1" $ property $ do
