@@ -20,7 +20,7 @@ instance ProbDensity Binomial where
 -- | (η,N) and (θ,N) for 'known' number of trials : N.
 type instance TEParam Binomial = (Double, Int)
 instance ThetaEta Binomial where
-    toθ (Binomial n p)  = Theta (log p / (1-p), n)
+    toθ (Binomial n p)  = Theta (log (p / (1-p)), n)
     fromθ (Theta (logit, n))
         = Binomial n (exp logit / (1+exp logit))
     toη (Binomial n p)  = Eta (fromIntegral n*p, n)
