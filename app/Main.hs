@@ -2,7 +2,8 @@ module Main where
 
 import Naiive
 import Data.ExponentialFamily.Density
-import Data.ExponentialFamily.Distribution
+import Data.ExponentialFamily.Distribution.Normal
+import Data.ExponentialFamily.Distribution.Binomial
 import Data.Ratio
 
 main :: IO ()
