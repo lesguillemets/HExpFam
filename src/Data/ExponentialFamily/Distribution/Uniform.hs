@@ -6,21 +6,21 @@ import Data.ExponentialFamily.ThetaEta
 
 
 -- | Uniform distribution. Range is inclusive.
--- Make a distribution either by i)  explicitly giving the range and p,
--- or @fromRange@ function.
+-- Make a distribution either by i) explicitly giving the range and p,
+-- or ii) @fromRange@ function.
+--
 -- >>> unif0 = Uniform (1,10) 0.1 :: Uniform Int
 -- >>> f unif0 5
 -- 0.1
 -- >>> f unif0 100
--- 0
+-- 0.0
 -- >>> fromRange (1,10) == unif0
 -- True
--- >>> unif1 = Uniform (1,10) 0.1 :: Uniform Double
+--
+-- >>> unif1 = Uniform (0,10) 0.1 :: Uniform Double
 -- >>> f unif1 5.1
 -- 0.1
--- >>> f unif1 100
--- 0
--- >>> fromRange (1,10) == unif1
+-- >>> unif1 == fromRange (0,10)
 -- True
 data Uniform a = Uniform { _range :: (a,a)
                          , _p     :: Double
