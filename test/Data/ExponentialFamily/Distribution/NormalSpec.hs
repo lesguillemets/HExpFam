@@ -29,13 +29,13 @@ spec = do
 
         it "fromη . toη is id" $ property $ fromηtoηIsID closeEnough
         it "modifyθ +k . -k is id" $ property $ \((par,k) :: (Normal, Double)) ->
-                (modifyθ (first $ subtract k) . modifyθ (first (+k))) par `closeEnough` par
-                    &&
-                    (modifyθ (second $ subtract k) . modifyθ (second (+k))) par `closeEnough` par
+                modifyθPreservesID (first $ subtract k) (first $ (+k)) closeEnough par
+                &&
+                modifyθPreservesID (second $ subtract k) (second $ (+k)) closeEnough par
         it "modifyη +k . -k is id" $ property $ \((par,k) :: (Normal, Double)) ->
-                (modifyη (first $ subtract k) . modifyη (first (+k))) par `closeEnough` par
-                    &&
-                    (modifyη (second $ subtract k) . modifyη (second (+k))) par `closeEnough` par
+                modifyηPreservesID (first $ subtract k) (first $ (+k)) closeEnough par
+                &&
+                modifyηPreservesID (second $ subtract k) (second $ (+k)) closeEnough par
         it "looks ok" $ property $ \(x0 :: Normal) ->
             let x1 = modifyθ (first (+0.1)) x0
                 x2 = modifyη (second (+0.1)) x1

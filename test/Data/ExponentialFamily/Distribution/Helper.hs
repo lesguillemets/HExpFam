@@ -37,3 +37,28 @@ fromθtoθIsID closeEnough d = (fromθ . toθ $ d) `closeEnough` d
 
 fromηtoηIsID :: ThetaEta d => (d -> d -> Bool) -> d -> Bool
 fromηtoηIsID closeEnough d = (fromη . toη $ d) `closeEnough` d
+
+modifyθPreservesID ::
+       ThetaEta d
+    => (TEParam d -> TEParam d)
+    -> (TEParam d -> TEParam d)
+    -> (d -> d -> Bool)
+    -> d
+    -> Bool
+modifyθPreservesID f invF closeEnough d =
+    (modifyθ invF . modifyθ f) d `closeEnough` d
+        &&
+    (modifyθ f . modifyθ invF) d `closeEnough` d
+
+modifyηPreservesID ::
+       ThetaEta d
+    => (TEParam d -> TEParam d)
+    -> (TEParam d -> TEParam d)
+    -> (d -> d -> Bool)
+    -> d
+    -> Bool
+modifyηPreservesID f invF closeEnough d =
+    (modifyη invF . modifyη f) d `closeEnough` d
+        &&
+    (modifyη f . modifyη invF) d `closeEnough` d
+
