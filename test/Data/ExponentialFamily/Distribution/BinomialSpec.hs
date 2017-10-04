@@ -12,18 +12,16 @@ import Data.ExponentialFamily.Integration
 import Data.ExponentialFamily.Density
 import Data.ExponentialFamily.ThetaEta
 
+import Data.ExponentialFamily.Distribution.Helper
+
 
 spec :: Spec
 spec = do
-    describe "binominal distribution" $ do
-        it "sums up to 1" $ property $ do
-            n <- choose (1,15)
-            p <- choose (0,1)
-            return . (<0.001)  . abs $ 1 - expectVal [0..n] (Binomial n p) (const 1)
-        it "fromθ . toθ is id" $ property $ \(bin :: Binomial) ->
-            (fromθ . toθ $ bin) `closeEnough` bin
-        it "fromη . toη is id" $ property $ \(bin :: Binomial) ->
-            (fromη . toη $ bin) `closeEnough` bin
+    describe "binominal distribution" $
+        it "sums up to 1" $ property $ sumsTo1' binomConf
+    describe "theta-eta" $ do
+        it "fromθ . toθ is id" $ property $ fromθtoθIsID closeEnough
+        it "fromη . toη is id" $ property $ fromηtoηIsID closeEnough
         it "modifyθ +k . -k is id" $ property $ \((bin,Dk k) :: (Binomial, Dk)) ->
                 (modifyθ (first $ subtract k) . modifyθ (first (+k))) bin `closeEnough` bin
 
@@ -34,6 +32,8 @@ closeEnough (Binomial a b) (Binomial c d) =
 instance Arbitrary Binomial where
     arbitrary = Binomial <$> choose (1,15) <*> choose (0,1)
 
+binomConf :: Binomial -> [Int]
+binomConf (Binomial n _) = [0..n]
 
 newtype Dk = Dk Double
 instance Show Dk where

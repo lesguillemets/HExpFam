@@ -5,6 +5,7 @@ import Test.Hspec
 import Test.QuickCheck
 import Test.QuickCheck.Property as QP
 import Test.QuickCheck.Arbitrary
+import Data.ExponentialFamily.Distribution.Helper
 
 import Control.Arrow
 
@@ -16,18 +17,17 @@ import Data.ExponentialFamily.ThetaEta
 
 spec :: Spec
 spec = do
-    describe "normal distribution" $ do
-        it "sums up to 1" $ property $ \(norm::Normal) ->
-            (<0.001)  . abs $ 1 - expectVal (normConfig norm) norm (const 1)
+    describe "basic properties" $ do
+        it "sums up to 1" $ property $ sumsTo1' normConfig
 
         it "logF is nicely defined" $ property $ \(n::Normal) -> do
             x <- choose (-200,200)
             return . (<0.001)  . abs $ logF n x - (log $ f n x)
             
-        it "fromθ . toθ is id" $ property $ \(par :: Normal) ->
-            (fromθ . toθ $ par) `closeEnough` par
-        it "fromη . toη is id" $ property $ \(par :: Normal) ->
-            (fromη . toη $ par) `closeEnough` par
+    describe "eta-theta" $ do
+        it "fromθ . toθ is id" $ property $ fromθtoθIsID closeEnough
+
+        it "fromη . toη is id" $ property $ fromηtoηIsID closeEnough
         it "modifyθ +k . -k is id" $ property $ \((par,k) :: (Normal, Double)) ->
                 (modifyθ (first $ subtract k) . modifyθ (first (+k))) par `closeEnough` par
                     &&
