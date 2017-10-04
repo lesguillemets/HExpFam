@@ -44,8 +44,8 @@ test-suite HExpFams-spectest
                      , HExpFams
                      , hspec
                      , QuickCheck
-  exposed-modules:     Data.ExponentialFamily.Distribution.Helper
   other-modules:       NaiiveSpec
+                     , Data.ExponentialFamily.Distribution.Helper
                      , Data.ExponentialFamily.IntegrationSpec
                      , Data.ExponentialFamily.DensitySpec
                      , Data.ExponentialFamily.DistributionSpec
