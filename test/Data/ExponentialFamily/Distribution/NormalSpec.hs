@@ -41,11 +41,11 @@ spec = do
                 x2 = modifyη (second (+0.1)) x1
                 kld1 = kld x0 x2
                 kld2 = kld x0 x1 + kld x1 x2
-                in  abs (kld1 - kld2) < 0.1
+                in  abs (kld1 - kld2) < 0.001
 
 closeEnough :: Normal -> Normal -> Bool
 closeEnough (Normal a b) (Normal c d) =
-    abs (a - c) < 0.0001 && abs (b - d) < 0.0001
+    abs (a - c) < 0.001 && abs (b - d) < 0.001
 
 kld n0 n1 = kullbackLeiblerDivergence (norm2Config n0 n1) n0 n1
 

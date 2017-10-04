@@ -58,4 +58,4 @@ kullbackLeiblerDivergence ::
     -> d1
     -> Double
 kullbackLeiblerDivergence c d0 d1 =
-    expectVal c d0 (\x -> logF d0 x / logF d1 x)
+    expectVal c d0 (\x -> logF d0 x - logF d1 x)
