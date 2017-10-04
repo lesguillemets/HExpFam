@@ -36,9 +36,9 @@ spec = do
                 modifyηPreservesID (first $ subtract k) (first $ (+k)) closeEnough par
                 &&
                 modifyηPreservesID (second $ subtract k) (second $ (+k)) closeEnough par
-        it "looks ok" $ property $ \(x0 :: Normal) ->
-            let x1 = modifyθ (first (+0.1)) x0
-                x2 = modifyη (second (+0.1)) x1
+        it "looks ok" $ property $ \(x0 :: Normal, Small diff0, Small diff1) ->
+            let x1 = modifyθ (first (+ (0.001*fromInteger diff0))) x0
+                x2 = modifyη (second (+(0.001*fromIntegral diff1))) x1
                 kld1 = kld x0 x2
                 kld2 = kld x0 x1 + kld x1 x2
                 in  abs (kld1 - kld2) < 0.001
@@ -66,7 +66,7 @@ norm2Config :: Normal -> Normal -> IntegrateDouble
 norm2Config (Normal μ0 σ20) (Normal μ1 σ21)=
     let σ0 = sqrt σ20
         σ1 = sqrt σ21
-        lower = min (μ0-2*σ0) (μ1-2*σ1)
-        upper = max (μ0+2*σ0) (μ1+2*σ1)
+        lower = min (μ0-8*σ0) (μ1-8*σ1)
+        upper = max (μ0+8*σ0) (μ1+8*σ1)
         in
-    IntegrateDouble  lower upper ((upper-lower)/10000)
+    IntegrateDouble  lower upper ((upper-lower)/40000)
