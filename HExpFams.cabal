@@ -15,8 +15,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Naiive
-                     , Data.ExponentialFamily
+  exposed-modules:     Data.ExponentialFamily
                      , Data.ExponentialFamily.Density
                      , Data.ExponentialFamily.Distribution
                      , Data.ExponentialFamily.Distribution.Binomial
@@ -44,8 +43,7 @@ test-suite HExpFams-spectest
                      , HExpFams
                      , hspec
                      , QuickCheck
-  other-modules:       NaiiveSpec
-                     , Data.ExponentialFamily.Distribution.Helper
+  other-modules:       Data.ExponentialFamily.Distribution.Helper
                      , Data.ExponentialFamily.IntegrationSpec
                      , Data.ExponentialFamily.DensitySpec
                      , Data.ExponentialFamily.DistributionSpec
