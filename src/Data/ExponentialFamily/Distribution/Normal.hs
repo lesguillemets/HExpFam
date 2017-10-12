@@ -14,8 +14,8 @@ instance ProbDensity Normal where
     f (Normal μ σ2) x = exp ( -(x-μ)^2 / (2*σ2) ) / sqrt (2*pi*σ2)
     logF (Normal μ σ2) x = -(x-μ)^2 / (2*σ2) - log(2*pi*σ2)/2
 
-type instance TEParam Normal = (Double, Double)
 instance ThetaEta Normal where
+    type TEParam Normal = (Double, Double)
     toθ (Normal μ σ2)      = Theta (μ/σ2, -1 / (2*σ2))
     fromθ (Theta (θ0, θ1)) = Normal (- θ0/(2*θ1)) (-1/(2*θ1))
     toη (Normal μ σ2)      = Eta (μ, μ^2+σ2)

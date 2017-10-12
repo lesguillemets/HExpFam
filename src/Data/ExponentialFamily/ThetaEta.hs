@@ -6,17 +6,16 @@ module Data.ExponentialFamily.ThetaEta where
 
 
 -- |
--- @TEParam dist@ is the type for θ- and η- coordinates.
--- For distributions with 2 degrees of freedom, we'll prefer
--- @(Double, Double)@.
-type family TEParam dist :: *
-
--- |
 -- Anything that can be expressed with θ- and η- coodinates.
 -- We don't use another type for the parameters other than the distribution
 -- itself. e.g.  We will use @Normal μ σ@ directry and
 -- we don't use @(μ, σ)@.
 class ThetaEta a where
+    -- |
+    -- @TEParam dist@ is the type for θ- and η- coordinates.
+    -- For distributions with 2 degrees of freedom, we'll prefer
+    -- @(Double, Double)@.
+    type TEParam a
     -- | Get the θ coordinates.
     toθ :: a -> Theta a
     -- | Given θ, returns the distribution.
@@ -35,9 +34,9 @@ class ThetaEta a where
 
 -- | @Theta a@ and @Eta a@ contains the same thing, usually n Doubles,
 -- and we'll use newtypes to make our life a little more type-safe.
-newtype Theta a = Theta (TEParam a)
-θmap :: (TEParam a -> TEParam b) -> Theta a -> Theta b
+newtype ThetaEta a => Theta a= Theta (TEParam a)
+θmap :: (ThetaEta a, ThetaEta b) => (TEParam a -> TEParam b) -> Theta a -> Theta b
 θmap f (Theta a) = Theta (f a)
-newtype Eta a = Eta (TEParam a)
-ηmap :: (TEParam a -> TEParam b) -> Eta a -> Eta b
+newtype ThetaEta a => Eta a = Eta (TEParam a)
+ηmap :: (ThetaEta a, ThetaEta b) => (TEParam a -> TEParam b) -> Eta a -> Eta b
 ηmap f (Eta a) = Eta (f a)
