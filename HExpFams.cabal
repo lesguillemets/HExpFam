@@ -21,6 +21,7 @@ library
                      , Data.ExponentialFamily.Distribution.Binomial
                      , Data.ExponentialFamily.Distribution.Normal
                      , Data.ExponentialFamily.Distribution.Uniform
+                     , Data.ExponentialFamily.KullbackLeibler
                      , Data.ExponentialFamily.Integration
                      , Data.ExponentialFamily.ThetaEta
   build-depends:       base >= 4.7 && < 5

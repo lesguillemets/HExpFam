@@ -13,6 +13,7 @@ import Data.ExponentialFamily
 import Data.ExponentialFamily.Distribution.Normal
 import Data.ExponentialFamily.Density
 import Data.ExponentialFamily.Integration
+import Data.ExponentialFamily.KullbackLeibler
 import Data.ExponentialFamily.ThetaEta
 
 
@@ -46,6 +47,9 @@ spec = do
 
     describe "exponential family" $ do
         it "logF is close enough, when calculated by its ExponentialFamily" $ property $ (\(n::Normal,x) -> (<0.001) . abs $ logF n x - logPOf n x)
+
+        it "||KL matches" $ property $
+            \ (n0::Normal, n1::Normal) -> (<0.01) . abs $ kld n0 n1 - dKL n0 n1
             
 
 closeEnough :: Normal -> Normal -> Bool
