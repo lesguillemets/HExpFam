@@ -9,6 +9,7 @@ import Data.ExponentialFamily.Distribution.Helper
 
 import Control.Arrow
 
+import Data.ExponentialFamily
 import Data.ExponentialFamily.Distribution.Normal
 import Data.ExponentialFamily.Density
 import Data.ExponentialFamily.Integration
@@ -23,7 +24,7 @@ spec = do
         it "logF is nicely defined" $ property $ \(n::Normal) -> do
             x <- choose (-200,200)
             return . (<0.001)  . abs $ logF n x - (log $ f n x)
-            
+
     describe "eta-theta" $ do
         it "fromθ . toθ is id" $ property $ fromθtoθIsID closeEnough
 
@@ -42,6 +43,10 @@ spec = do
                 kld1 = kld x0 x2
                 kld2 = kld x0 x1 + kld x1 x2
                 in  abs (kld1 - kld2) < 0.001
+
+    describe "exponential family" $ do
+        it "logF is close enough, when calculated by its ExponentialFamily" $ property $ (\(n::Normal,x) -> (<0.001) . abs $ logF n x - logPOf n x)
+            
 
 closeEnough :: Normal -> Normal -> Bool
 closeEnough (Normal a b) (Normal c d) =

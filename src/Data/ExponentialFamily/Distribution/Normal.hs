@@ -1,6 +1,7 @@
 {-# LANGUAGE TypeFamilies #-}
 module Data.ExponentialFamily.Distribution.Normal where
 
+import Data.ExponentialFamily
 import Data.ExponentialFamily.Density
 import Data.ExponentialFamily.ThetaEta
 
@@ -20,4 +21,11 @@ instance ThetaEta Normal where
     fromθ (Theta (θ0, θ1)) = Normal (- θ0/(2*θ1)) (-1/(2*θ1))
     toη (Normal μ σ2)      = Eta (μ, μ^2+σ2)
     fromη (Eta (η0, η1))   = Normal η0 (η1 - η0^2)
+
+instance ExponentialFamily Normal where
+    _t _ x = (x,x^2)
+    _Fθ norm =
+        let Theta (θ0,θ1) = toθ norm
+            in - 1/ 2 * log (-2*θ1) - (θ0^2) / (4*θ1)
+    _k _ = const (- (log 2 + log pi)/2)
 
