@@ -50,6 +50,14 @@ spec = do
 
         it "||KL matches" $ property $
             \ (n0::Normal, n1::Normal) -> (<0.01) . abs $ kld n0 n1 - dKL n0 n1
+
+        it "looks better" $ property $ \(x0 :: Normal, Small diff0, Small diff1) ->
+            let x1 = modifyθ (first (+ (0.001*fromInteger diff0))) x0
+                x2 = modifyη (second (+(0.001*fromIntegral diff1))) x1
+                kld1 = dKL x0 x2
+                kld2 = dKL x0 x1 + dKL x1 x2
+                in  abs (kld1 - kld2) < 0.001
+
             
 
 closeEnough :: Normal -> Normal -> Bool
