@@ -2,6 +2,7 @@
 Anything related to θ-η-coordinates.
 -}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE ExistentialQuantification #-}
 module Data.ExponentialFamily.ThetaEta where
 
 
@@ -34,12 +35,12 @@ class ThetaEta a where
 
 -- | @Theta a@ and @Eta a@ contains the same thing, usually n Doubles,
 -- and we'll use newtypes to make our life a little more type-safe.
-newtype ThetaEta a => Theta a = Theta (TEParam a)
+data Theta a = (ThetaEta a) => Theta (TEParam a)
 θmap :: (ThetaEta a, ThetaEta b) => (TEParam a -> TEParam b) -> Theta a -> Theta b
 θmap f (Theta a) = Theta (f a)
 unθ :: ThetaEta a => Theta a -> TEParam a
 unθ (Theta θ) = θ
-newtype ThetaEta a => Eta a = Eta (TEParam a)
+data Eta a = (ThetaEta a) => Eta (TEParam a)
 ηmap :: (ThetaEta a, ThetaEta b) => (TEParam a -> TEParam b) -> Eta a -> Eta b
 ηmap f (Eta a) = Eta (f a)
 unη :: ThetaEta a => Eta a -> TEParam a
