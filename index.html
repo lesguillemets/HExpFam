@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>HExpFam --- exponential families in Haskell</title>
+
+		<meta name="description" content="Proof of concept implementation of the exponential families in Haskell">
+		<meta name="author" content="lesguillemets">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="slide/css/reveal.css">
+		<link rel="stylesheet" href="slide/css/theme/white.css" id="theme">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="slide/lib/css/hybrid.css">
+
+		<!-- Printing and PDF exports -->
+		<!-- <script>                                                                                                  -->
+		<!-- 	var link = document.createElement( 'link' );                                                             -->
+		<!-- 	link.rel = 'stylesheet';                                                                                 -->
+		<!-- 	link.type = 'text/css';                                                                                  -->
+		<!-- 	link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css'; -->
+		<!-- 	document.getElementsByTagName( 'head' )[0].appendChild( link );                                          -->
+		<!-- </script>                                                                                                 -->
+		<!--[if lt IE 9]>
+		<script src="slide/lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>HExpFam</h1>
+					<h3>A Proof-of-Concept Implementation of the Exponential Families in Haskell.</h3>
+					<p class="nonleft">
+						<div>
+							<a href="docs/HExpFams-0.1.0.0/index.html">View Haddock.</a>
+						</div>
+						<small> <a href="https://github.com/lesguillemets/HExpFams">github.com/lesguillemets/HExpFams</a></small>
+					</p>
+				</section>
+
+				<section>
+					<section><h2>Background</h2></section>
+					<section>
+					<h2>Exponential Families</h2>
+						<p>
+							The exponential family (in the canonical form)
+							$$ f(x \,|\, \boldsymbol{\eta}) = h(x) c^*(\boldsymbol{\eta}) \exp \left\{ \sum_i \eta_i t_i(x) \right\}.$$
+							where
+							<ul>
+								<li>$\eta_i $ : the natural parameter (we'll be using $\boldsymbol\theta$)</li>
+								<li>$E[t_i (x)]$ : the expectation parameter ($\boldsymbol \eta$ later on) </li>
+							</ul>
+						</p>
+					</section>
+					<section>
+						<h3> Example </h3>
+						<p>
+						Binomial Distribution
+						$$ f(x\,|\,p) = \binom{n}{x} \cdot (1-p)^n \cdot \exp\left\{ \log \frac{p}{1-p} \cdot x \right\}$$
+							<ul>
+								<li>Natural parameter is the logit: $\log\left( p / (1-p) \right) $ </li>
+								<li>$E[t (x)] = E[x] = np.$</li>
+							</ul>
+						</p>
+					</section>
+					<section>
+						<h3> Example </h3>
+						<p>
+							Normal Distribution <small>$\frac{1}{\sqrt{ 2\pi \sigma^2 }} \exp\left\{ - (x-\mu)^2 / 2\sigma^2 \right\},$</small>
+							$$ f(x\,|\,\mu, \sigma) = \frac{1}{\sqrt{2\pi}} A(\cdot) \exp \left( \frac{\mu}{\sigma^2}\cdot x - \frac{1}{2\sigma^2}\cdot x^2  \right)$$
+							<br />
+							<ul>
+								<li>Natural parameter: $\boldsymbol\theta =( \mu/\sigma^2,  -1/2\sigma^2 )^T$</li>
+								<li>$\boldsymbol\eta = \left(E[x] , E[x^2]\right)^T = (\mu,  \mu^2+\sigma^2)^T$. </li>
+							</ul>
+						</p>
+					</section>
+					<section>
+						<h3>$\theta$ and $\eta$ as the coordinates</h3>
+						<p>
+							By specifying the distribution (giving $h(x)$, $c^*(\cdot)$, $t_i(x)$), we can use $\boldsymbol\eta$ or $\boldsymbol \theta$
+							as the coordinate (has one-to-one mapping to the parameter we usually use).
+							<ul>
+								<li>$\mathcal{N}(\mu,\sigma)$ </li>
+								<li>$\mathcal{N}_\theta(\theta_0, \theta_1) = \mathcal{N}_\theta\bigl(  \mu/\sigma^2,  -1/2\sigma^2  \bigr)$</li>
+								<li>$\mathcal{N}_\eta(\eta_0, \eta_1)= \mathcal{N}_\eta \bigl( \mu, \mu^2+\sigma^2 \bigr )$</li> 
+							</ul>
+						</p>
+					</section>
+					<section>
+						<h3>Why bother?</h3>
+						<p>&theta;- and &eta;-coodinates have interesting characteristics, especially:
+							<ul>
+								<li>
+									When 'moved' along &theta;-  then &eta;-axis, <p>$$ D_\text{KL}(P_0\,||\,P_1) + D_\text{KL}(P_1\,||\,P_2) = D_\text{KL}(P_0\,||\,P_2).$$</p>								</li>
+							</ul>
+							where $D_\text{KL}(\cdot\,||\,\cdot)$ is the Kullback-Leibler divergence, defined by $D_\text{KL} (P\,||\,Q) := {\displaystyle\int_{-\infty}^{\infty}}\!\!\!p(x)\log\frac{p(x)}{q(x)}\,dx (=E\left[\log\frac{p}{q}\right])$
+						</p>
+					</section>
+					<section>
+						<p>
+							The background and implications of the properties are <em>not</em> discussed here.
+						</p>
+						<p>
+							Our goal for now  is to <em>Implement a data structure in which such properties are easy to use.</em>
+						</p>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2> Implementation</h2>
+					</section>
+					<section class="nonleft">
+						<h3> Strategies</h3>
+						<p class="nonleft">
+							Features we are looking for
+							<ul>
+								<li> Sane abstraction</li>
+								<li> As generic as possible</li>
+								<li> Maximum Type Safety</li>
+								<li> Friendly interface </li>
+							</ul>
+						</p>
+					</section>
+					<section data-background-image="slide/assets/Haskell-Logo-light.svg" data-background-position="left" data-background-size="cover">
+						<h2>Haskell</h2>
+						<ul>
+							<li class="fragment" data-fragment-index="1"> <span class="fragment highlight-blue" data-fragment-index="4"> Purely Functional</span> Language
+								<ul>
+									<li>Influences from ML</li>
+									<li>Lazy Evaluation <small>(Does <em>not</em> contribute much for our purpose) </small></li>
+								</ul>
+							</li>
+							<li class="fragment" data-fragment-index="2"> <span class="fragment highlight-blue"  data-fragment-index="5"> Strong, Static Typing </span></li>
+							<li class="fragment" data-fragment-index="3"> Best <span class="fragment highlight-blue" data-fragment-index="6"> Type System </span>Around
+								<ul>
+									<li>Both in terms of abstraction and friendliness</li>
+								</ul>
+							</li>
+							<small class="fragment">
+								<li>My love for the language
+									<ul>
+										<li>Can't write imperatively now<sup style="vertical-align:super; font-size:smaller;">TM</sup></li>
+									</ul>
+								</li>
+							</small>
+						</ul>
+					</section>
+				</section>
+				<section data-background-image="slide/assets/Haskell-Logo-light.svg" data-background-position="left" data-background-size="cover">
+					<section>
+						<H2>Haskell 101 (if need be)</H2>
+					</section>
+					<section>
+						<h3>Bindings</h3>
+						Functions are defined with equal sign. No parentheses for application.
+						<pre><code class="haskell" data-trim>
+						x = 3
+						f x = x * 2
+						f' = \ x -> x*2  -- lambda
+						g x y = x*y + 1
+						</code></pre>
+						Other notable expressions
+						<pre><code class="haskell" data-trim>
+						>>> (f . g) x == f (g x) -- function composition
+						-- equivalent to
+						f . g $ x
+						</code></pre>
+					</section>
+					<section>
+						<h3>Type Signature</h3>
+						<pre><code class="haskell" data-trim>
+						n :: Int -- n is int
+
+						f :: Int -> Int -- Accept Int and returns Int
+						f x = x + 2
+
+						id :: a -> a  -- for some type a, receives a and returns a
+						id x = x
+
+						max :: Ord a => a -> a -> a -- Ord is a constraint.
+						-- for some type a, which is an instance of Ord
+						</code></pre>
+					</section>
+					<section>
+						<h3>Data Types</h3>
+						We can declare data types as follows
+						<pre><code class="haskell" data-trim>
+						-- defines a data type Foo, with Foo and Bar being the constructors
+						data Foo = Foo | Bar
+
+						-- With arguments
+						data Person = Person String Int
+
+						-- With named fields
+						data Book = Book { _title :: String
+						                 , _ISBN :: String }
+						</code></pre>
+					</section>
+					<section>
+						<h3>Classes</h3>
+						Classes 
+						<pre><code class="haskell" data-trim>
+						class Show a where  -- a class Show. Its instance type a should..
+						    show :: a -> String
+						    -- have an implementation of a function named show.
+						</code></pre>
+						<pre><code class="haskell" data-trim>
+						instance Show Foo where -- Make Foo an instance of Show
+						    show Foo = "Foo"    -- Pattern matching against constructors
+						    show Bar = "Bar"
+						-- Then
+						main = putStrLn $ show Foo -- prints "Foo"
+						</code></pre>
+					</section>
+					<section>
+						<h3 class="danger-zone">Type Families</h3>
+						Type Family (
+						requires GHC's
+						<a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#type-families"><code>TypeFamilies</code></a>
+						extension) introduces the concept of associated data types.
+						<pre><code class="haskell" data-trim>
+							{-# LANGUAGE TypeFamilies #-}
+
+							class SetLike a where -- type a is SetLike, when
+							    type Item a :: *  -- there's certain type (Item a)
+							    empty :: a
+							    insert :: Item a -> a -> a
+
+							newtype List a = List [a] deriving (Show)
+							instance SetLike (List a) where
+							    type Item (List a) = a
+							    empty = List []
+							    insert x (List xs) = List (x:xs) -- List [4]
+
+							main = print (insert 4 empty :: List Int)
+						</code></pre>
+					</section>
+				</section>
+
+				<section data-background-image="slide/assets/Haskell-Logo-light.svg" data-background-position="left" data-background-size="cover">
+					<section><h2> Implementation</h2>
+						<h3>Overview</h3>
+					<pre><code data-trim class="bash">
+.
+├── src/
+│   └── Data/
+│       ├── ExponentialFamily/
+│       │   ├── Density.hs
+│       │   ├── Distribution/
+│       │   │   ├── Binomial.hs
+│       │   │   ├── Normal.hs
+│       │   │   └── Uniform.hs
+│       │   ├── Distribution.hs
+│       │   ├── KullbackLeibler.hs
+│       │   ├── Integration.hs
+│       │   └── ThetaEta.hs
+│       └── ExponentialFamily.hs
+</code></pre>
+					</section>
+					<section>
+						<h3>Overview</h3>
+						<p>
+							Three important typeclasses
+							<ul>
+								<li><code>ProbDensity</code> (<a href="docs/HExpFams-0.1.0.0/Data-ExponentialFamily-Density.html">Density.hs</a>) for probability density funtions</li>
+								<li><code>ThetaEta</code> (<a href="docs/HExpFams-0.1.0.0/Data-ExponentialFamily-ThetaEta.html">ThetaEta.hs</a>) for dual-coordinates</li>
+								<li><code>ExponentialFamily</code> (<a href="docs/HExpFams-0.1.0.0/Data-ExponentialFamily.html">ExponentialFamily.hs</a>) for things specific to the
+									exponential family</li>
+							</ul>
+						</p>
+					</section>
+				</section>
+
+				<section data-background-image="slide/assets/Haskell-Logo-light.svg" data-background-position="left" data-background-size="cover">
+					<section><h2> Implementation</h2>
+						<h3>Integration</h3>
+					</section>
+					<section>
+						<h3>Integration</h3>
+						<p>
+							Naïve integration is defined as follows:
+						<pre><code class="haskell" data-trim>
+integrate :: IntegrateConfig i => i -> (Domain i -> Double) -> Double
+integrate i f = sum . map ((* integrateWidth i) . f) $ integrateValues i
+						</code></pre>
+							<p>
+							where
+							<ul>
+								<li>
+									<code class="haskell">Domain i</code> is the domain of the function.
+								</li>
+								<li>
+									<code>IntegrateConfig i</code> is some type that can be used to
+								describe the calculation, including the bounds.
+								</li>
+							</ul>
+</p>
+						<pre><code class="haskell" data-trim>
+class IntegrateConfig i where
+    -- | We will calculate integral of f : @(Domain i) -> Double@.
+    type Domain i
+    integrateValues :: i -> [Domain i]
+    integrateWidth :: i -> Double
+						</code></pre>
+						</p>
+						</section>
+
+						<section>
+							<h3>Integration cont.</h3>
+						<p>
+							Example: normal integral from <code>lower</code> to <code>upper</code>,
+							using <code>dx</code>
+						<pre><code class="haskell" data-trim>
+data IntegrateDouble = IntegrateDouble { _lower :: Double
+                                       , _upper :: Double
+                                       , _dx :: Double}
+instance IntegrateConfig IntegrateDouble where
+    type Domain IntegrateDouble = Double
+    integrateValues (IntegrateDouble l u dx) = [l+dx/2, l+3*dx/2..u-dx/2]
+    integrateWidth = _dx
+						</code></pre>
+						Then
+						<pre><code class="haskell" data-trim>
+						integrate (IntegrateDouble 0 (pi/2) 0.001) sin
+						</code></pre>
+					calculates $\displaystyle \sum_i \sin(x_i)\times dx \approx \int_0^{\frac{\pi}{2}} \sin (x)\,\mathrm dx$.
+					</p>
+					</section>
+
+
+				</section>
+
+				<section data-background-image="slide/assets/Haskell-Logo-light.svg" data-background-position="left" data-background-size="cover">
+					<section><h2> Implementation </h2>
+						<h3>Densities</h3>
+					</section>
+
+					<section>
+						<h3>Densities </h3>
+
+						<pre><code class="haskell" data-trim>
+type Probability = Double
+
+class ProbDensity d where
+    type Point d
+    -- |
+    -- f(x|θ), assuming θ is already given in d.
+    -- Point d is usually Double, but sometimes it may be some other
+    -- structures.
+    f :: d -> Point d -> Probability
+    -- | log (f(x|θ). We may have better implementation, that's why.
+    logF :: d -> Point d -> Double
+    logF p x = log $ f p x
+						</code></pre>
+						<p>
+							The distribution is defined over x &isin; <code>Point d</code>.
+							</p>
+							<p>
+							<ul>
+								<li>$\mathbb R$ for Normal distributions</li>
+								<li>$\mathbb N$, or $\{0 \leq x \leq n \mid x \in \mathbb N\}$ for binomial</li>
+								<li> some set $\{x_i\}$for categorical $\{(x_i, p_i)\}$, etc...</li>
+							</ul>
+						</p>
+					</section>
+
+					<section>
+						<p>With which we can evaluate the expectation:</p>
+						<pre><code class="haskell" data-trim>
+expectVal ::
+       (ProbDensity d, IntegrateConfig iconf, Point d ~ Domain iconf)
+    => iconf -- ^ the points and width of the integration
+    -> d -- ^ probability density function
+    -> (Point d -> Double) -- ^ Gives the value at that point
+    -> Double -- ^ expectation
+expectVal config dist func = sum $ map ((* dx) . (\x -> func x * p x)) xs
+  where
+    p = f dist
+    xs = integrateValues config
+    dx = integrateWidth config
+					</code></pre>
+					</section>
+
+				<section>
+					<p> And the most naïve implementation of Kullback-Leibler divergence: </p>
+<pre><code class="haskell" data-trim>
+	kullbackLeiblerDivergence ::
+	       ( ProbDensity d0
+	       , ProbDensity d1
+	       , IntegrateConfig iconf
+	       , Point d0 ~ Point d1
+	       , Point d0 ~ Domain iconf
+	       )
+	    => iconf
+	    -> d0
+	    -> d1
+	    -> Double
+	kullbackLeiblerDivergence c d0 d1 =
+	    expectVal c d0 (\x -> logF d0 x - logF d1 x)
+</code></pre>
+				</section>
+			</section>
+			<section data-background-image="slide/assets/Haskell-Logo-light.svg" data-background-position="left" data-background-size="cover">
+				<section>
+					<h2>Implementation </h2>
+					<h3> Theta and Eta</h3>
+				</section>
+
+				<section>
+					<p>
+						Three forms
+						<ul>
+							<li>$N(\mu,\sigma)$ </li>
+							<li>$\mathcal{N}_\theta(\theta_0, \theta_1) = \mathcal{N}_\theta\bigl(  \mu/\sigma^2,  -1/2\sigma^2  \bigr)$</li>
+							<li>$\mathcal{N}_\eta(\eta_0, \eta_1)= \mathcal{N}_\eta \bigl( \mu, \mu^2+\sigma^2 \bigr )$</li> 
+						</ul>
+					</p>
+					We'll have $N(\mu, \sigma)$ (or whatever the “usual” notion) as the base,
+					and convert to $\boldsymbol \eta$ and $\boldsymbol \theta$ when necessary.
+				</section>
+				<section>
+					<h3>Theta-Eta</h3>
+					<pre><code class="haskell" data-trim>
+class ThetaEta a where
+    type TEParam a         -- (Double, Double) for 2 degrees of freedom
+    toθ :: a -> Theta a    -- Get the θ coordinates.
+    fromθ :: Theta a -> a  -- Given θ, returns the distribution.
+    toη :: a -> Eta a      -- Get the η coordinates.
+    fromη :: Eta a -> a    -- Given η, returns the distribution.
+    -- | Returns a new distribution with θ modified as instructed.
+    modifyθ :: (TEParam a -> TEParam a) -> a -> a
+    modifyθ f = fromθ . θmap f . toθ
+    -- | Returns a new distribution with η modified as instructed.
+    modifyη :: (TEParam a -> TEParam a) -> a -> a
+    modifyη f = fromη . ηmap f . toη
+</code></pre>
+
+					<pre><code class="haskell" data-trim>
+-- | @Theta a@ and @Eta a@ contains the same thing, usually n Doubles,
+-- and we'll use newtypes to make our life a little more type-safe.
+newtype ThetaEta a => Theta a = Theta (TEParam a)
+</code></pre>
+				</section>
+				<section>
+					So that the following holds:
+					<pre><code class="bash" data-trim>
+					>>> p0 = fromθ (θ0)
+					>>> p1 = modifyθ (first (+ dx)) p0
+					>>> p2 = modifyη (second (+ dx)) p1
+					>>> kld p0 p2 == kld p0 p1 + kld p1 p2
+					</code></pre>
+				</section>
+
+			</section>
+
+			<section data-background-image="slide/assets/Haskell-Logo-light.svg" data-background-position="left" data-background-size="cover">
+				<section>
+					<h2>Implementations</h2>
+				<h3>Exponential Families</h3>
+				</section>
+				<section>
+					<h3>Notation</h3>
+					<p>
+					We will follow the notation
+					$$ p(x;\boldsymbol{\theta}) = \exp {\bigl( \left\langle \boldsymbol t(x), \boldsymbol \theta \right\rangle - F(\boldsymbol \theta) + k(x) \bigr) }$$
+					where $\langle\cdot\rangle$ refers to the inner product. Note that $\boldsymbol\theta$ is the natural parameter here.
+					</p>
+<p>
+					Compare.
+					$$ f(x \,|\, \boldsymbol{\eta}) = h(x) c^*(\boldsymbol{\eta}) \exp \left\{ \sum_i \eta_i t_i(x) \right\}.$$
+</p>
+				</section>
+				<section>
+					<p><code>ExponentialFamily</code> class has these functions</p>
+					<pre><code class="haskell">class (ThetaEta d, ProbDensity d, VLike (TEParam d)) => ExponentialFamily d where
+    _t :: d -> Point d -> TEParam d  --  t(x).
+    _Fθ :: d -> Double               --  F(θ). Sometimes called A(η).
+    _k :: d -> Point d -> Double     --  k(x). Sometimes log h(x).
+    logPOf :: d -> Point d -> Double --  log( p(x;θ) ).
+    logPOf dist x =
+        (_t dist x) `innerProd` (unθ $ toθ dist) - _Fθ dist + _k dist x
+    pOf :: d -> Point d -> Double
+    pOf dist x = exp $ logPOf dist x </code></pre>
+					<p>
+						Notes:
+						<small>
+							<ul>
+								<li> <code>VLike</code> for inner product, because I choose not to use List for type safety. (TODO)
+									<ul> <li> Otherwize, it's as simple as <code> sum $ zipWith (*) xs ys </code>.</li>
+										<li> Dependent types??</li>
+									</ul>
+								</li>
+								<li> <code>_t </code> should purely depends on x only and not use its first argument.
+									it's there for type checkers (TODO).
+								</li>
+								<li> for all d, x, <code>logPOf d x == logF d x</code> should hold</li>
+							</ul>
+					</small>
+					</p>
+				</section>
+				<section>
+					<h3>Kullback-Leibler divergence</h3>
+					<p>
+						For two distributions that belong to the same exponential family, we can see that
+						$$ D_\text{KL} = -F(\boldsymbol{\theta}_0) + F(\boldsymbol{\theta}_1) + \langle \boldsymbol{\theta}_0 - \boldsymbol{\theta}_1 , \boldsymbol{\eta}_0\rangle.$$
+					</p>
+					<p>Thus 
+<!-- instance ExponentialFamily d => KullbackLeibler d d where -->
+					<pre><code class="haskell" data-trim>
+    dKL :: ExponentialFamily d => d -> d -> Double
+    dKL p0 p1 =
+       let θ0 = unθ $ toθ p0
+           θ1 = unθ $ toθ p1
+           η0 = unη $ toη p0
+           in negate (_Fθ p0) + _Fθ p1 + (θ0 <-> θ1) `innerProd` η0
+					</code></pre>
+</p>
+<p> The result should (and does) match with the naïve implementation.</p>
+				</section>
+			</section>
+
+
+			<section data-background-image="slide/assets/Haskell-Logo-light.svg" data-background-position="left" data-background-size="cover">
+				<section>
+					<h2>Implementation</h2>
+					<h3>Making an instance</h3>
+					Now we're almost there!
+				</section>
+
+				<section>
+					<h3>Example: Normal distribution</h3>
+					<p> Normal distribution</p>
+					<pre><code class="haskell" data-trim>
+-- | Normal distribution, with mean μ and variance σ2.
+data Normal = Normal { _μ :: Double
+                     , _σ2 :: Double
+                     } deriving (Show, Eq)
+					</code></pre>
+					<p> Augment normal distributions with these type classees</p>
+				</section>
+				<section>
+					<h3>Equip <code>ProbDensity</code></h3>
+					<pre><code class="haskell" data-trim>
+instance ProbDensity Normal where
+    type Point Normal = Double
+    f (Normal μ σ2) x = exp ( -(x-μ)^2 / (2*σ2) ) / sqrt (2*pi*σ2)
+    logF (Normal μ σ2) x = -(x-μ)^2 / (2*σ2) - log(2*pi*σ2)/2
+					</code></pre>
+					<ul>
+						<li> Normal distributions are defined over $\mathbb{R}$, so <code>type Point Normal = Double </code>.</li>
+						<li> Here <code>logF</code> is (expected to be) better than <code>log $ f d x</code></li>
+					</ul>
+				</section>
+				<section>
+					<h3>Equip <code>ThetaEta</code></h3>
+					<pre><code class="haskell" data-trim>
+instance ThetaEta Normal where
+    type TEParam Normal = (Double, Double)
+    toθ (Normal μ σ2)      = Theta (μ/σ2, -1 / (2*σ2))
+    fromθ (Theta (θ0, θ1)) = Normal (- θ0/(2*θ1)) (-1/(2*θ1))
+    toη (Normal μ σ2)      = Eta (μ, μ^2+σ2)
+    fromη (Eta (η0, η1))   = Normal η0 (η1 - η0^2)
+					</code></pre>
+					<ul>
+						<li> Normal distributions are defined with $(\theta_0,\theta_1)$ or $(\eta_0,\eta_1)$,
+							so <code>type TEParam Normal = (Double, Double) </code>.</li>
+						<li> <code>fromθ . toθ</code> is <code>id</code>, etc.</li>
+					</ul>
+				</section>
+				<section>
+					<h3>Equip <code>ExponentialFamily</code></h3>
+					<pre><code class="haskell" data-trim>
+instance ExponentialFamily Normal where
+    _t _ x = (x,x^2)
+    _Fθ norm =
+        let Theta (θ0,θ1) = toθ norm
+            in - 1/ 2 * log (-2*θ1) - (θ0^2) / (4*θ1)
+    _k _ = const (- (log 2 + log pi)/2)
+					</code></pre>
+					<ul>
+						<li><code>logPOf</code> and <code>logF</code> (from Density) do match</li>
+						<li>Kullback-Leibler divergence computed with two methods do match</li>
+					</ul>
+				</section>
+				<section>
+					With these, we have all the necessary functions implemented for <code>Normal</code>. Some examples:
+
+					<pre><code class="haskell" data-trim>
+					n0 = Normal 3 10
+					expectVal conf n0 id -- 3
+					n1 = fromη (Eta (5, 10)) :: Normal
+					n1 = fromθ (Theta (5, 10)) :: Normal
+					</code></pre>
+					<pre><code class="haskell" data-trim>
+            let x1 = modifyθ (first (+ (0.001*fromInteger diff0))) x0
+                x2 = modifyη (second (+(0.001*fromIntegral diff1))) x1
+                kld1 = dKL x0 x2
+                kld2 = dKL x0 x1 + dKL x1 x2
+            print $ abs (kld1 - kld2) < 0.001 -- True
+				</code></pre>
+				</section>
+			</section>
+
+			<section data-background-image="slide/assets/Haskell-Logo-light.svg" data-background-position="left" data-background-size="cover">
+				<section>
+					<h3>Technical highlights not discussed here:</h3>
+					<ul>
+						<li>Extensive testing with <a href="https://hspec.github.io/">hspec</a> and
+							<a href="https://hackage.haskell.org/package/QuickCheck">Quickcheck</a> for test case generation</li>
+						<li>Stack and Cabal for auto-execution</li>
+						<li>Good documentation with <a href="https://www.haskell.org/haddock/">haddock</a></li>
+						<li>Linting with <a href="https://github.com/DanielG/ghc-mod">ghc-mod</a></li>
+					</ul>
+				</section>
+			</section>
+			<section>
+				<section>
+					<H2>TODOs</H2>
+				</section>
+				<section>
+					<h3>TODOs</h3>
+					<ul>
+						<li>Numerical stability
+							<ul>
+								<li>Pythagorean accuracy between 1% and 0.5%</li>
+								<li>How to test?</li>
+							</ul>
+						</li>
+						<li>Overhauling rewrite
+							<ul>
+								<li>Type families vs data families</li>
+								<li>Use of better abstraction for Vector. <small>Dependent types should be cool...</small></li>
+							</ul>
+						</li>
+						<li> Applications!</li>
+						<li>Even better testing. Publish the lib. Implement more distributions. etc.</li>
+					</ul>
+				</section>
+				<section>
+					<h3>Failed attempts on the numerical stability</h3>
+					<ul>
+						<li>For certain distribution, we can analytically calculate the divergences. Maybe allows for better result?
+							<ul>
+								<li>Almost exactly matched with the naïve Implementation</li>
+							</ul>
+						</li>
+						<li><a href="https://herbie.uwplse.org/">Herbie</a>
+						</li>
+					</ul>
+				</section>
+			</section>
+				<section>
+					<h2>Conclusions</h2>
+					<ul>
+						<li>Built a basic library for expressing the idea of Exponential Family, and hopefully showed the power of abstraction in Haskell</li>
+						<li>The library is meant to be extensible and as generic as possible</li>
+						<li>Applications are TBD.</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Thank you!</h2>
+					<p class="nonleft">
+						 <a href="https://github.com/lesguillemets/HExpFams">lesguillemets/HExpFams</a>
+					</p>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="slide/lib/js/head.min.js"></script>
+		<script src="slide/js/reveal.js"></script>
+
+		<script>
+
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+				margin:0.05,
+				slideNumber:true,
+
+				math: {
+					mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+					config: 'TeX-AMS_HTML-full',
+				},
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'slide/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'slide/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					// { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'slide/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'slide/plugin/zoom-js/zoom.js', async: true },
+					{ src: 'slide/plugin/notes/notes.js', async: true },
+					{ src: 'slide/plugin/math/math.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
